@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockAndBuy", "StockAndBuy\StockAndBuy.csproj", "{D2D577A0-2EC4-4DDF-BC27-60012B950788}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockAndBuy.EF", "StockAndBuy.EF\StockAndBuy.EF.csproj", "{0122F930-17A1-4603-805D-69BFD1D1F706}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2D577A0-2EC4-4DDF-BC27-60012B950788}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2D577A0-2EC4-4DDF-BC27-60012B950788}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2D577A0-2EC4-4DDF-BC27-60012B950788}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2D577A0-2EC4-4DDF-BC27-60012B950788}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0122F930-17A1-4603-805D-69BFD1D1F706}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0122F930-17A1-4603-805D-69BFD1D1F706}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0122F930-17A1-4603-805D-69BFD1D1F706}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0122F930-17A1-4603-805D-69BFD1D1F706}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9C0770C2-4706-4776-A238-373A2B075ED3}
+	EndGlobalSection
+EndGlobal
