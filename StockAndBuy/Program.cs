@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using StockAndBuy.EF;
+using StockAndBuy.EF.Repository;
 using System;
 using System.Collections.Generic;
 
@@ -7,13 +9,15 @@ namespace StockAndBuy
 {
     class Program
     {
-        static bool leafCount = true;
-        static int NodeCount = 0;
-        static int BundleCount = 0;
+        static bool leafCount = false;
         static BundleContext context = null;
         static void Main(string[] args)
         {
 
+            //Console.Write("Enter input in JSON format:");
+            // string input = Console.ReadLine();   
+            // Bundle newBundle = JsonConvert.DeserializeObject<Bundle>(input);
+            // Bundle newBundle= JsonConvert.DeserializeObject<Bundle>("{\"Children\": [{\"Children\": [],\"Name\": \"Seat\",\"RequiredUnits\": 1,\"TotalUnits\": 50},{\"Children\": [],\"Name\": \"Pedals\",\"RequiredUnits\": 2,\"TotalUnits\": 60},{\"Children\": [{\"Children\": [],\"Name\": \"Frame\",\"RequiredUnits\": 2,\"TotalUnits\": 60},{\"Children\": [],\"Name\": \"Tube\",\"RequiredUnits\": 2,\"TotalUnits\": 35}],\"Name\": \"Wheels\",\"RequiredUnits\": 2,\"TotalUnits\": 0}],\"Name\": \"Bike\",\"RequiredUnits\": 0,\"TotalUnits\": 0}");
             Bundle aBundle = new Bundle
             {
                 Name = "Bike",
@@ -24,17 +28,36 @@ namespace StockAndBuy
                     new Bundle {Name = "Wheels" ,RequiredUnits=2,
                     Children = new List<Bundle>
                     {
-                        new Bundle {Name = "Frame" ,RequiredUnits=1, TotalUnits=60},
-                        new Bundle {Name = "Tube" ,RequiredUnits=1, TotalUnits=35}
+                        new Bundle {Name = "Frame" ,RequiredUnits=2, TotalUnits=60},
+                        new Bundle {Name = "Tube" ,RequiredUnits=2, TotalUnits=35}
                     }
                     }
                 }
             };
-            //Add the Root Node
-            while (leafCount)
+
+            //Create DBContext instance
+            if (context == null)
+                context = new BundleContext();
+
+            //Flush DB
+            FlushNodes();
+
+            Random rand = new Random();
+            while (!leafCount)
             {
-                BuildInventory(aBundle, 1);
+                //Add the Root Node
+                int bundleId = rand.Next(1000, 5000);
+                EF.Node aNode = new EF.Node(aBundle.Name, null, bundleId);
+                int parentId = AddNodeToDB(aNode);
+                BuildInventory(aBundle, parentId, bundleId);
             }
+
+            //Find the depth of the bundle--- track upto leaf nodes
+            int bundleDepth = aBundle.DepthOfBundle(aBundle, 0);
+            //Get the maximum number od bundles that can be create from the given input.
+            int maxBundles = GetMaxBundles(bundleDepth);
+             
+            Console.WriteLine("The maximum bundles that can be created are: {0}",maxBundles); 
 
             //Console.WriteLine(JsonConvert.SerializeObject(new Bundle
             //{
@@ -46,82 +69,85 @@ namespace StockAndBuy
             //        new Bundle {Name = "Wheels" ,RequiredUnits=2,
             //        Children = new List<Bundle>
             //        {
-            //            new Bundle {Name = "Frame" ,RequiredUnits=1, TotalUnits=60},
-            //            new Bundle {Name = "Tube" ,RequiredUnits=1, TotalUnits=35}
+            //            new Bundle {Name = "Frame" ,RequiredUnits=2, TotalUnits=60},
+            //            new Bundle {Name = "Tube" ,RequiredUnits=2, TotalUnits=35}
             //        }
             //        }
             //    }
             //}, Formatting.Indented));
-
             Console.ReadKey();
 
-
-            //Node<Int32> root = new Node<int>(1);
-            //root = Generate(root);
-            //List<Int32> order = root.LevelOrder();
-            //foreach (int num in order)
-            //    Console.Write(num + " "); 
         }
 
-        private static void BuildInventory(Bundle aBundle, int parentId)
+
+        /// <summary>
+        /// Build the inventory from the input JSON
+        /// </summary>
+        /// <param name="aBundle"></param>
+        /// <param name="parentId"></param>
+        /// <param name="bundleId"></param>
+        private static void BuildInventory(Bundle aBundle, int parentId, int bundleId)
         {
             if (aBundle != null && aBundle.Children.Count > 0)
             {
-                BundleCount++;
                 foreach (Bundle child in aBundle.Children)
                 {
                     if (child.IsLeaf())
                     {
                         if (child.TotalUnits > child.RequiredUnits)
                         {
-                            EF.Node aNode = new EF.Node(child.Name, 1);
-                            AddNodeToDB(aNode);
+                            EF.Node aNode = new EF.Node(child.Name, parentId, bundleId);
+                            int id = AddNodeToDB(aNode);
                             child.TotalUnits -= child.RequiredUnits;
                         }
                         else
                         {
-                            leafCount = false;
+                            leafCount = true;
                         }
                     }
                     else
                     {
-                        EF.Node aNode = new EF.Node(child.Name, 1);
-                        AddNodeToDB(aNode);
-                        BuildInventory(child, parentId);
+                        EF.Node aNode = new EF.Node(child.Name, parentId, bundleId);
+                        int id = AddNodeToDB(aNode);
+                        BuildInventory(child, id, bundleId);
                     }
-                    // Console.WriteLine(JsonConvert.SerializeObject(child, Formatting.Indented));
                 }
 
             }
         }
 
-        private static void AddNodeToDB(EF.Node aNode)
+        /// <summary>
+        /// Add Bundle Node to the database
+        /// </summary>
+        /// <param name="aNode"></param>
+        /// <returns></returns>
+        private static int AddNodeToDB(EF.Node aNode)
         {
-            if (context == null)
-                context = new BundleContext();
-            context.Nodes.Add(aNode);
-            context.SaveChanges();
+            INodeRepository nodeRepo = new NodeRepository(context);
+            return nodeRepo.Save(aNode);
+
         }
 
-        static Node2<int> Generate(Node2<int> root)
+        /// <summary>
+        /// Get Maximum number of bundles that can be created
+        /// </summary>
+        /// <param name="bundleDepth"></param>
+        /// <returns></returns>
+        private static int GetMaxBundles(int bundleDepth)
         {
-            Random rand = new Random();
-            root.AddAllChildren(Make(rand.Next(0, 5)));
-            for (int i = 0; i < root.children.Count; i++)
-                root.children[i] = Generate(root.children[i]);
-            return root;
+            INodeRepository nodeRepo = new NodeRepository(context);
+            return nodeRepo.GetMaxBundles(bundleDepth);
         }
-        static List<Node2<int>> Make(int children)
+
+
+        /// <summary>
+        /// FlushNodes
+        /// </summary>
+        private static void FlushNodes()
         {
-            List<Node2<int>> list = new List<Node2<int>>();
-            if (NodeCount > 100)
-                return list;
-            for (int i = 1; i <= children; i++)
-            {
-                NodeCount++;
-                list.Add(new Node2<int>(NodeCount));
-            }
-            return list;
+            INodeRepository nodeRepo = new NodeRepository(context);
+            nodeRepo.FlushNodes(); 
         }
+
     }
 }
