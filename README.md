@@ -7,6 +7,7 @@
 [EF Migration](#migration) 
 <a name="input"/>
 ##### Input as a JSON
+```JSON
 {
     "Children": [
       {
@@ -45,12 +46,13 @@
   "RequiredUnits": 0,
   "TotalUnits": 0
 }
-<a name="db"/>
-##### [Database design can be found at] 
+```
+##### Database design can be found at
+<a name="db"/>  
 (https://github.com/imzahoorshah/StockAndBuy/blob/master/Docs/Database%20Design.pptx)
 
-<a name="migration"/>
 ##### Run the following commands in StockAndBuy.EF library for DB Migration
+<a name="migration"/> 
 
 ENable-Migrations
 
