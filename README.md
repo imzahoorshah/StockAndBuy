@@ -51,7 +51,10 @@
 
 <a name="migration"/>
 ##### Run the following commands in StockAndBuy.EF library for DB Migration
+
 ENable-Migrations
+
 Add Migration 'initial migration'
+
 Update-Database
 
