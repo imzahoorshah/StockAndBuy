@@ -3,6 +3,8 @@
 ##### Table of Contents  
 [input](#input)  
 [Database Design](#db) 
+
+[EF Migration](#migration) 
 <a name="input"/>
 ##### Input as a JSON
 {
@@ -45,4 +47,11 @@
 }
 <a name="db"/>
 ##### [Database design can be found at] 
-(https://github.com/imzahoorshah/StockAndBuy/blob/master/Docs/Database%20Design.pptx) 
+(https://github.com/imzahoorshah/StockAndBuy/blob/master/Docs/Database%20Design.pptx)
+
+<a name="migration"/>
+##### Run the following commands in StockAndBuy.EF library for DB Migration
+ENable-Migrations
+Add Migration 'initial migration'
+Update-Database
+
